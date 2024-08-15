@@ -36,6 +36,10 @@ router = APIRouter()
     "/funds", response_description="List all funds", response_model=List[FundModel]
 )
 async def list_funds():
+    """
+    this route will obtain all funds and return as a list of Funds according to 
+    the response model FundModel pydantic class. This returns all funds, not just distinct ones.
+    """
     funds = await db["funds"].find().to_list(1000)
     return funds
 
@@ -43,6 +47,10 @@ async def list_funds():
     "/id/{id}", response_description="Get a single fund", response_model=FundModel
 )
 async def show_fund(id: PyObjectId):
+    """
+    returns a pydantic FundModel if the objectid is found in the mongodb collection
+    else if nothing found a HTTP exception is raised with detail of fund not found
+    """
     if (fund := await db["funds"].find_one({"_id": id})) is not None:
         return fund
 
@@ -52,22 +60,29 @@ async def show_fund(id: PyObjectId):
     "/name/{name}", response_description="Search by Name", response_model=List[FundModel]
 )
 async def get_funds_by_name(name: str):
+    """
+    returns a pydantic list of funds if the passed string is found in
+    the name of a fund. Note that the 'i' option means case is not sensitive.
+    """
     funds = await db["funds"].find({"name": {'$regex': name, '$options': 'i'}}).to_list(1000)
     return funds
 
-
 @router.post("/", response_description="Add new Fund", response_model=UpdateFundModel)
-#async def create_fund(fund: FundModel = Body(...)):
 async def create_fund(fund: UpdateFundModel = Body(...)):
+    """
+    this posts a new Fund using the Update model so no objectID is needed.
+    """
     fund = jsonable_encoder(fund)
     new_fund = await db["funds"].insert_one(fund)
     created_fund = await db["funds"].find_one({"_id": new_fund.inserted_id})
     created_fund['_id'] = str(created_fund['_id'])
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_fund)
 
-
 @router.put("/{id}", response_description="Update a fund", response_model=FundModel)
 async def update_fund(id: PyObjectId, fund: UpdateFundModel = Body()):
+    """
+    updates a fund if the objectID is found and modified
+    """
     fund = {k: v for k, v in fund.dict().items() if v is not None}
 
     if len(fund) >= 1:
@@ -87,6 +102,10 @@ async def update_fund(id: PyObjectId, fund: UpdateFundModel = Body()):
 
 @router.delete("/{id}", response_description="Delete a fund")
 async def delete_fund(id: PyObjectId):
+    """
+    deletes a fund when passed an objectID that exists in the mongodb
+    collection.
+    """
     delete_result = await db["funds"].delete_one({"_id": id})
 
     if delete_result.deleted_count == 1:

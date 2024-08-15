@@ -1,10 +1,8 @@
 from pydantic import BaseModel, Field
 from bson import ObjectId
 from typing import Optional
-
 from enum import Enum
 
-#add classes in here
 class Currency(str, Enum):
     """
     Used to provide validation options for different currencies
@@ -50,6 +48,9 @@ class PyObjectId(ObjectId):
         field_schema.update(type="string")
 
 class FundModel(BaseModel):
+    """
+    pydantic model to validate the fields required to define a complete Fund record including mongodb objectid
+    """
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id", )
     name: str = Field(...)
     type: str = Field(...)
@@ -83,6 +84,10 @@ class FundModel(BaseModel):
         }
 
 class UpdateFundModel(BaseModel):
+    """
+    pydantic model to define an updated Fund without the mongodb objectID as this
+    will be generated for a new fund.
+    """
     name: Optional[str]
     type: Optional[str]
     fclass: Optional[str]
