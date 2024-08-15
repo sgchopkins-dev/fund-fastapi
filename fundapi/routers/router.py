@@ -7,6 +7,9 @@ import motor.motor_asyncio
 import os
 from typing import List
 
+from dotenv import load_dotenv
+load_dotenv()
+
 MONGODB_USERNAME = os.getenv('MONGODB_USERNAME')
 MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD')
 MONGODB_DB = os.getenv('MONGODB_DB')
