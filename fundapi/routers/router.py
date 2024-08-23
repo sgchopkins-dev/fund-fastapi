@@ -7,8 +7,8 @@ import motor.motor_asyncio
 import os
 from typing import List
 
-from dotenv import load_dotenv
-load_dotenv()
+#from dotenv import load_dotenv
+#load_dotenv()
 
 MONGODB_USERNAME = os.getenv('MONGODB_USERNAME')
 MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD')
@@ -46,7 +46,7 @@ async def list_funds():
 @router.get(
     "/id/{id}", response_description="Get a single fund", response_model=FundModel
 )
-async def show_fund(id: PyObjectId):
+async def show_fund(id: PyObjectId) -> List:
     """
     returns a pydantic FundModel if the objectid is found in the mongodb collection
     else if nothing found a HTTP exception is raised with detail of fund not found
@@ -59,7 +59,7 @@ async def show_fund(id: PyObjectId):
 @router.get(
     "/name/{name}", response_description="Search by Name", response_model=List[FundModel]
 )
-async def get_funds_by_name(name: str):
+async def get_funds_by_name(name: str) -> List:
     """
     returns a pydantic list of funds if the passed string is found in
     the name of a fund. Note that the 'i' option means case is not sensitive.
